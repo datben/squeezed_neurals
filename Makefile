@@ -1,14 +1,15 @@
+LIBS = libs/** -lm
 
+INPUT_FILE = ben-pxl.jpg
+OUTPUT_FILE = target/ben-pxl-2.png
 
-
-build: main.c
-	gcc -o main.c -c libs/stb_image.h
-
+build: src/main.c
+	mkdir -p target && gcc -o target/main src/main.c $(LIBS)
 
 clean:
-	rm -f main
+	rm -r target
 
 run:
-	./main ben-pxl.jpg
+	./target/main $(INPUT_FILE) $(OUTPUT_FILE)
 
 all: clean build run
