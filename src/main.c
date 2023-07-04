@@ -12,6 +12,8 @@
 
 #define PIXEL_CHANNELS 3
 
+#include "../include/pixel.h"
+
 char *args_shift(int *argc, char ***argv)
 {
 	assert(*argc > 0);
@@ -19,11 +21,6 @@ char *args_shift(int *argc, char ***argv)
 	(*argc) -= 1;
 	(*argv) += 1;
 	return result;
-}
-
-unsigned char get_pixel(unsigned char *img, int width, int x, int y)
-{
-	return img[y * width + x];
 }
 
 int write_image(char const *filename, int width, int height, const void *data)
@@ -60,6 +57,10 @@ int main(int argc, char **argv)
 		fprintf(stderr, "ERROR: Could not write image %s\n", img2_file_path);
 		return 1;
 	}
+
+	Pixel p = get_pixel(data, width, 0, 0);
+
+	printf("%i %i %i\n", p.red, p.green, p.blue);
 
 	stbi_image_free(data);
 	return 0;
