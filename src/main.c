@@ -52,7 +52,7 @@ int main(int argc, char **argv)
 
 	int write_result = write_image(img2_file_path, width, height / 2, data);
 
-	if (write_result == 0)
+	if (!write_result)
 	{
 		fprintf(stderr, "ERROR: Could not write image %s\n", img2_file_path);
 		return 1;

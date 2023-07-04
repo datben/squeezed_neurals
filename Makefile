@@ -8,10 +8,10 @@ OUTPUT_FILE = target/ben-pxl-2.png
 target/build/%.o: %.c
 	$(CC) $(CFLAGS) -o $@ -c $<
 
-create_dir:  
+create_dir:
 	mkdir -p target && mkdir -p target/build && mkdir -p target/build/src 
 
-build: create_dir target/build/src/main.o target/build/src/pixel.o
+build: target/build/src/main.o target/build/src/pixel.o
 	gcc target/build/src/pixel.o target/build/src/main.o -o target/main $(LIBS)
 
 clean:
