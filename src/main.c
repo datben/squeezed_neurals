@@ -13,6 +13,9 @@
 #define PIXEL_CHANNELS 3
 
 #include "../include/pixel.h"
+#include "../include/neuron.h"
+#include "../include/neural_network.h"
+#include "../include/math_utils.h"
 
 char *args_shift(int *argc, char ***argv)
 {
@@ -58,10 +61,19 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	Pixel p = get_pixel(data, width, 0, 0);
+	init_rand();
 
-	printf("%i %i %i\n", p.red, p.green, p.blue);
+	int layer_size[3] = {3, 2, 1};
+	NeuralNetwork *nn = generate_random_neural_network(3, layer_size, 3);
+	double inputs[3] = {1.0, 2.0, 3.0};
+
+	double *out = compute_neural_network_output(nn, inputs);
+
+	printf("%f\n", out[0]);
+	printf("%f\n", out[1]);
+	printf("%f\n", out[2]);
 
 	stbi_image_free(data);
+
 	return 0;
 }
