@@ -7,7 +7,7 @@ Layer *generate_random_layer(int *node_sizes, int size)
 
     Layer *l = (Layer *)malloc(sizeof(Layer));
     l->size = size;
-    l->nodes = (Neuron **)malloc(size * sizeof(Neuron));
+    l->nodes = (Neuron **)malloc(size * sizeof(Neuron *));
     for (int i = 0; i < size; i++)
     {
         l->nodes[i] = generate_random_neuron(node_sizes[i]);
