@@ -39,7 +39,7 @@ double **compute_neural_network_output(const NeuralNetwork *nn, double *inputs)
     return outputs;
 }
 
-double ***compute_neural_network_error_n(const NeuralNetwork *nn, const double *inputs, const double **nn_outputs, const double *expected_output)
+double ***compute_neural_network_partial_derivate_error_n(const NeuralNetwork *nn, const double *inputs, const double **nn_outputs, const double *expected_output)
 {
     double ***err_n = (double ***)malloc(nn->nb_layer * sizeof(double **));
     int output_size = nn->output_size;
@@ -95,10 +95,10 @@ double ***compute_neural_network_error_n(const NeuralNetwork *nn, const double *
 
 int neural_network_weights_number(const NeuralNetwork *nn)
 {
-    int sum = nn->input_size * nn->layer_sizes[0];
+    int sum = 0;
     for (int i = 1; i < nn->nb_layer; i++)
     {
-        sum += nn->layer_sizes[i - 1] * nn->layer_sizes[i];
+        sum += layer_weights_number(nn->layers[i]);
     }
     return sum;
 }
@@ -106,21 +106,57 @@ int neural_network_weights_number(const NeuralNetwork *nn)
 void backpropagation_update(const NeuralNetwork *nn, double learning_rate, int nb_inputs, const double **inputs, const double ***nn_outputs, const double **expected_output)
 {
 
-    const double ***err = (double ***)malloc(neural_network_weights_number(nn) * sizeof(double));
-    for (int n = 0; n < nb_inputs; n++)
+    double ***err = compute_neural_network_partial_derivate_error_n(nn, inputs[0], nn_outputs[0], expected_output[0]);
+    for (int n = 1; n < nb_inputs; n++)
     {
-        double ***err_n = compute_neural_network_error_n(nn, inputs[n], nn_outputs[n], expected_output[n]);
+        double ***err_n = compute_neural_network_partial_derivate_error_n(nn, inputs[n], nn_outputs[n], expected_output[n]);
         for (int i = 0; i < nn->nb_layer; i++)
         {
             for (int j = 0; j < nn->layer_sizes[i]; j++)
             {
-                Layer *layer = nn->layers[i];
-
-                for (int k = 0; k < layer->size; k++)
-                {
-                    double *temp = add_vec(err[i][i][k], err_n, layer->nodes[k]->size);
-                }
+                int size = layer_weights_number(nn->layers[i]);
+                double *temp1 = add_vec(err_n[i][j], err[i][j], size);
+                double *temp2 = mul_vec(err_n[i][j], 1.0 / ((double)nb_inputs), size);
+                free(err_n[i][j]);
+                free(temp1);
+                err_n[i][j] = temp2;
             }
         }
+    }
+
+    for (int i = 0; i < nn->nb_layer; i++)
+    {
+        Layer *layer = nn->layers[i];
+        for (int j = 0; j < layer->size; j++)
+        {
+            Neuron *neuron = layer->nodes[j];
+            for (int k = 0; k < neuron->size; k++)
+            {
+                neuron->weights[k] -= err[i][j][k];
+            }
+        }
+        free(err[i]);
+    }
+    free(err);
+}
+
+void train_neural_network(const NeuralNetwork *nn, double learning_rate, int nb_epoch, int nb_inputs, const double **inputs, const double **expected_output)
+{
+
+    for (int n = 0; n < nb_epoch; n++)
+    {
+
+        printf("Epoch %i", n);
+        double ***outputs = (double ***)malloc(nb_inputs * sizeof(double **));
+        for (int i = 0; i < nb_inputs; i++)
+        {
+            outputs[i] = compute_neural_network_output(nn, inputs[i]);
+        }
+        backpropagation_update(nn, learning_rate, nb_inputs, inputs, outputs, expected_output);
+        for (int i = 0; i < nb_inputs; i++)
+        {
+            free(outputs[i]);
+        }
+        free(outputs);
     }
 }

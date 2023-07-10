@@ -4,8 +4,11 @@ CC = gcc
 
 EXE = target/main
 
-INPUT_FILE = ben-pxl.jpg
-OUTPUT_FILE = target/ben-pxl-2.png
+INPUT_FILE = pokeball.png
+OUTPUT_FILE = target/pokeball-2.png
+
+# INPUT_FILE = ben-pxl.jpg
+# OUTPUT_FILE = target/ben-pxl-2.png
 
 SRC_FILES = main.c \
 	pixel.c \

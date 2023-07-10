@@ -24,3 +24,13 @@ double *compute_layer_output(const Layer *layer, double *inputs)
     }
     return out;
 }
+
+int layer_weights_number(const Layer *layer)
+{
+    int sum = 0;
+    for (int i = 0; i < layer->size; i++)
+    {
+        sum += layer->nodes[i]->size;
+    }
+    return sum;
+}

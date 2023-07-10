@@ -45,19 +45,11 @@ int main(int argc, char **argv)
 	const char *img2_file_path = args_shift(&argc, &argv);
 
 	int width, height, channels;
-	unsigned char *data = stbi_load(img1_file_path, &width, &height, &channels, 0);
+	unsigned char *data = stbi_load(img1_file_path, &width, &height, &channels, 3);
 
-	if (data == NULL || channels != PIXEL_CHANNELS)
+	if (data == NULL || channels < PIXEL_CHANNELS)
 	{
 		fprintf(stderr, "ERROR: image1 unsupported format\n");
-		return 1;
-	}
-
-	int write_result = write_image(img2_file_path, width, height / 2, data);
-
-	if (!write_result)
-	{
-		fprintf(stderr, "ERROR: Could not write image %s\n", img2_file_path);
 		return 1;
 	}
 
@@ -65,13 +57,23 @@ int main(int argc, char **argv)
 
 	int layer_size[3] = {8, 8, 3};
 	NeuralNetwork *nn = generate_random_neural_network(3, layer_size, 2);
-	double inputs[3] = {1.0, 2.0, 3.0};
 
-	double **out = compute_neural_network_output(nn, inputs);
+	ImageTrainingData img_data = prepare_training_data_from_image(data, width, height, channels);
 
-	printf("%f\n", out[nn->nb_layer - 1][0]);
+	train_neural_network(nn, 0.001, 5, img_data.nb_data_points, img_data.inputs, img_data.expected_outputs);
+
+	unsigned char *out = create_image_from_neural_network(nn, width, height);
+
+	int write_result = write_image(img2_file_path, width, height, out);
+
+	if (!write_result)
+	{
+		fprintf(stderr, "ERROR: Could not write image %s\n", img2_file_path);
+		return 1;
+	}
 
 	stbi_image_free(data);
+	stbi_image_free(out);
 
 	return 0;
 }

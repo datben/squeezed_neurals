@@ -14,4 +14,6 @@ Layer *generate_random_layer(int *node_sizes, int size);
 
 double *compute_layer_output(const Layer *layer, double *inputs);
 
+int layer_weights_number(const Layer *layer);
+
 #endif
