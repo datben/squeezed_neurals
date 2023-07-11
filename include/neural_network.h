@@ -8,21 +8,23 @@ typedef struct
     int nb_layer;
     int input_size;
     int output_size;
-    const int *layer_sizes;
+    int *layer_sizes;
     Layer **layers;
 
 } NeuralNetwork;
 
-NeuralNetwork *generate_random_neural_network(int nb_layer, const int *layer_sizes, int input_size);
+NeuralNetwork *generate_random_neural_network(int nb_layer, int *layer_sizes, int input_size);
 
-double **compute_neural_network_output(const NeuralNetwork *nn, double *inputs);
+double **compute_neural_network_last_and_hidden_outputs(NeuralNetwork *nn, double *inputs);
 
-double ***compute_neural_network_partial_derivate_error_n(const NeuralNetwork *nn, const double *inputs, const double **nn_outputs, const double *expected_output);
+double *compute_neural_network_last_output(NeuralNetwork *nn, double *inputs);
 
-void backpropagation_update(const NeuralNetwork *nn, double learning_rate, int nb_inputs, const double **inputs, const double ***nn_outputs, const double **expected_output);
+double ***compute_neural_network_partial_derivate_error_n(NeuralNetwork *nn, double *inputs, double **nn_outputs, double *expected_output);
 
-int neural_network_weights_number(const NeuralNetwork *nn);
+void backpropagation_update(NeuralNetwork *nn, double learning_rate, int nb_inputs, double **inputs, double ***nn_outputs, double **expected_output);
 
-void train_neural_network(const NeuralNetwork *nn, double learning_rate, int nb_epoch, int nb_inputs, const double **inputs, const double **expected_output);
+int neural_network_weights_number(NeuralNetwork *nn);
+
+void train_neural_network(NeuralNetwork *nn, double learning_rate, int nb_epoch, int nb_inputs, double **inputs, double **expected_output);
 
 #endif

@@ -14,7 +14,7 @@ double drand(double low, double high)
     return ((double)rand() * (high - low)) / (double)RAND_MAX + low;
 }
 
-double euclidean_norm(const double *vec, int dim)
+double euclidean_norm( double *vec, int dim)
 {
     double output = 0.0;
     for (int i = 0; i < dim; i++)
@@ -24,7 +24,7 @@ double euclidean_norm(const double *vec, int dim)
     return sqrt(output);
 }
 
-double *add_vec(const double *a, const double *b, int dim)
+double *add_vec( double *a,  double *b, int dim)
 {
     double *output = (double *)malloc(dim * sizeof(double));
     for (int i = 0; i < dim; i++)
@@ -34,7 +34,7 @@ double *add_vec(const double *a, const double *b, int dim)
     return output;
 }
 
-double *sub_vec(const double *a, const double *b, int dim)
+double *sub_vec( double *a,  double *b, int dim)
 {
     double *output = (double *)malloc(dim * sizeof(double));
     for (int i = 0; i < dim; i++)
@@ -44,7 +44,7 @@ double *sub_vec(const double *a, const double *b, int dim)
     return output;
 }
 
-double *mul_vec(const double *vec, double scalar, int dim)
+double *mul_vec( double *vec, double scalar, int dim)
 {
     double *output = (double *)malloc(dim * sizeof(double));
     for (int i = 0; i < dim; i++)

@@ -1,5 +1,5 @@
 LIBS = libs/** -lm
-CFLAGS = -Wall -O3
+CFLAGS = -Wall -O1
 CC = gcc
 
 EXE = target/main

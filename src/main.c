@@ -26,7 +26,7 @@ char *args_shift(int *argc, char ***argv)
 	return result;
 }
 
-int write_image(char const *filename, int width, int height, const void *data)
+int write_image(char *filename, int width, int height, void *data)
 {
 	return stbi_write_png(filename, width, height, PIXEL_CHANNELS, data, width * PIXEL_CHANNELS);
 }
@@ -34,15 +34,15 @@ int write_image(char const *filename, int width, int height, const void *data)
 int main(int argc, char **argv)
 {
 
-	const char *program = args_shift(&argc, &argv);
+	char *program = args_shift(&argc, &argv);
 
-	if (argc < 2)
+	if (argc < 1)
 	{
 		fprintf(stderr, "Usage: %s <image>\n", program);
 		fprintf(stderr, "ERROR: image is not provided\n");
 		return 1;
 	}
-	const char *img1_file_path = args_shift(&argc, &argv);
+	char *img1_file_path = args_shift(&argc, &argv);
 
 	int width, height, channels;
 	unsigned char *data = stbi_load(img1_file_path, &width, &height, &channels, 3);
@@ -72,15 +72,15 @@ int main(int argc, char **argv)
 
 	train_neural_network(nn, 0.001, 10000, img_data.nb_data_points, img_data.inputs, img_data.expected_outputs);
 
-	out = create_image_from_neural_network(nn, width, height);
+	// out = create_image_from_neural_network(nn, width, height);
 
-	write_result = write_image("target/out-2.png", width, height, out);
+	// write_result = write_image("target/out-2.png", width, height, out);
 
-	if (!write_result)
-	{
-		fprintf(stderr, "ERROR: Could not write image\n");
-		return 1;
-	}
+	// if (!write_result)
+	// {
+	// 	fprintf(stderr, "ERROR: Could not write image\n");
+	// 	return 1;
+	// }
 
 	stbi_image_free(data);
 	stbi_image_free(out);

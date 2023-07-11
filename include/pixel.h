@@ -19,6 +19,6 @@ typedef struct
 
 ImageTrainingData prepare_training_data_from_image(unsigned char *image, int width, int height, int channels);
 
-unsigned char *create_image_from_neural_network(const NeuralNetwork *nn, int width, int height);
+unsigned char *create_image_from_neural_network(NeuralNetwork *nn, int width, int height);
 
 #endif

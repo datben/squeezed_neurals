@@ -2,7 +2,7 @@
 #include "../include/math_utils.h"
 #include <stdlib.h>
 
-double compute_neuron_output(const Neuron *neuron, double *inputs)
+double compute_neuron_output( Neuron *neuron, double *inputs)
 {
     double res = 0;
     for (int i = 0; i < neuron->size; i++)

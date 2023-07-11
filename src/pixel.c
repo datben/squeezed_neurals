@@ -34,7 +34,7 @@ ImageTrainingData prepare_training_data_from_image(unsigned char *image, int wid
     return d;
 }
 
-unsigned char *create_image_from_neural_network(const NeuralNetwork *nn, int width, int height)
+unsigned char *create_image_from_neural_network(NeuralNetwork *nn, int width, int height)
 {
     unsigned char *img = (unsigned char *)malloc(height * width * 3 * sizeof(char));
     for (int y = 0; y < height; y++)
@@ -44,10 +44,10 @@ unsigned char *create_image_from_neural_network(const NeuralNetwork *nn, int wid
             double *input = (double *)malloc(2 * sizeof(double));
             input[0] = x / width;
             input[1] = y / height;
-            double *output = compute_neural_network_output(nn, input);
-            img[y * width * 3, x * 3] = output[0];
-            img[y * width * 3, x * 3 + 1] = output[1];
-            img[y * width * 3, x * 3 + 2] = output[2];
+            double *output = compute_neural_network_last_output(nn, input);
+            img[y * width * 3 + x * 3] = output[0];
+            img[y * width * 3 + x * 3 + 1] = output[1];
+            img[y * width * 3 + x * 3 + 2] = output[2];
             free(output);
             free(input);
         }

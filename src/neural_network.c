@@ -2,8 +2,9 @@
 #include "../include/layer.h"
 #include "../include/math_utils.h"
 #include <stdlib.h>
+#include <stdio.h>
 
-NeuralNetwork *generate_random_neural_network(int nb_layer, const int *layer_sizes, int input_size)
+NeuralNetwork *generate_random_neural_network(int nb_layer, int *layer_sizes, int input_size)
 {
     NeuralNetwork *nn = (NeuralNetwork *)malloc(sizeof(NeuralNetwork));
     nn->nb_layer = nb_layer;
@@ -26,7 +27,7 @@ NeuralNetwork *generate_random_neural_network(int nb_layer, const int *layer_siz
     return nn;
 }
 
-double **compute_neural_network_output(const NeuralNetwork *nn, double *inputs)
+double **compute_neural_network_last_and_hidden_outputs(NeuralNetwork *nn, double *inputs)
 {
 
     double *input = inputs;
@@ -39,61 +40,87 @@ double **compute_neural_network_output(const NeuralNetwork *nn, double *inputs)
     return outputs;
 }
 
-double ***compute_neural_network_partial_derivate_error_n(const NeuralNetwork *nn, const double *inputs, const double **nn_outputs, const double *expected_output)
+double *compute_neural_network_last_output(NeuralNetwork *nn, double *inputs)
+{
+
+    double *input = inputs;
+    for (int i = 0; i < nn->nb_layer; i++)
+    {
+        double *temp = compute_layer_output(nn->layers[i], input);
+        if (i != 0)
+        {
+            free(input);
+        }
+        input = temp;
+    }
+    return input;
+}
+
+double ***compute_neural_network_partial_derivate_error_n(NeuralNetwork *nn, double *inputs, double **nn_outputs, double *expected_output)
 {
     double ***err_n = (double ***)malloc(nn->nb_layer * sizeof(double **));
-    int output_size = nn->output_size;
-    double *output_err = sub_vec(nn_outputs[nn->nb_layer - 1], expected_output, output_size);
 
+    // output loss
+    double *output_err = sub_vec(nn_outputs[nn->nb_layer - 1], expected_output, nn->output_size);
+
+    int input_size;
+    double *input;
+
+    // i index in layers
     for (int i = nn->nb_layer - 1; i >= 0; i--)
     {
-        err_n[i] = (double **)malloc(nn->layer_sizes[i] * sizeof(double *));
 
-        int input_size;
-        const double *input;
+        Layer *layer = nn->layers[i];
+        err_n[i] = (double **)malloc(layer->size * sizeof(double *));
 
         if (i == 0)
         {
+            // input of neuron 0 is input of the network
             input_size = nn->input_size;
             input = inputs;
         }
         else
         {
+            // output on neuron N is input of neuron N+1
             input_size = nn->layer_sizes[i - 1];
             input = nn_outputs[i - 1];
         }
 
-        for (int j = 0; j < nn->layer_sizes[i]; j++)
+        // compute dEn/dWjk
+        // j index on neuron
+        for (int j = 0; j < layer->size; j++)
         {
             err_n[i][j] = (double *)malloc(input_size * sizeof(double));
+            // k index on neuron weights
             for (int k = 0; k < input_size; k++)
             {
                 err_n[i][j][k] = output_err[j] * input[k];
             }
         }
 
-        int temp_output_size = nn->layer_sizes[i];
-        double *temp_output_err = (double *)malloc(temp_output_size * sizeof(double));
+        double *temp_output_err = (double *)malloc(layer->size * sizeof(double));
 
-        for (int j = 0; j < output_size; j++)
+        // backprogate loss for each neuron (no activation fn for now)
+        // j index on neuron of layer i-1
+        for (int j = 0; j < input_size; j++)
         {
             double sum = 0;
-            for (int k = 0; k < output_size; k++)
+            // k index on neuron of layer i
+            for (int k = 0; k < layer->size; k++)
             {
-                sum += nn->layers[i]->nodes[k]->weights[j] * output_err[k];
+                sum += layer->nodes[k]->weights[j] * output_err[k];
             }
             temp_output_err[j] = sum;
         }
 
         free(output_err);
-
         output_err = temp_output_err;
-        output_size = temp_output_size;
     }
+    free(output_err);
     return err_n;
 }
 
-int neural_network_weights_number(const NeuralNetwork *nn)
+int neural_network_weights_number(NeuralNetwork *nn)
 {
     int sum = 0;
     for (int i = 1; i < nn->nb_layer; i++)
@@ -103,7 +130,7 @@ int neural_network_weights_number(const NeuralNetwork *nn)
     return sum;
 }
 
-void backpropagation_update(const NeuralNetwork *nn, double learning_rate, int nb_inputs, const double **inputs, const double ***nn_outputs, const double **expected_output)
+void backpropagation_update(NeuralNetwork *nn, double learning_rate, int nb_inputs, double **inputs, double ***nn_outputs, double **expected_output)
 {
 
     double ***err = compute_neural_network_partial_derivate_error_n(nn, inputs[0], nn_outputs[0], expected_output[0]);
@@ -117,11 +144,15 @@ void backpropagation_update(const NeuralNetwork *nn, double learning_rate, int n
                 int size = layer_weights_number(nn->layers[i]);
                 double *temp1 = add_vec(err_n[i][j], err[i][j], size);
                 double *temp2 = mul_vec(err_n[i][j], 1.0 / ((double)nb_inputs), size);
-                free(err_n[i][j]);
+
+                err[i][j] = temp2;
+
                 free(temp1);
-                err_n[i][j] = temp2;
+                free(err_n[i][j]);
             }
+            free(err_n[i]);
         }
+        free(err_n);
     }
 
     for (int i = 0; i < nn->nb_layer; i++)
@@ -134,32 +165,35 @@ void backpropagation_update(const NeuralNetwork *nn, double learning_rate, int n
             {
                 neuron->weights[k] -= err[i][j][k];
             }
+            free(err[i][j]);
         }
         free(err[i]);
     }
     free(err);
 }
 
-void train_neural_network(const NeuralNetwork *nn, double learning_rate, int nb_epoch, int nb_inputs, const double **inputs, const double **expected_output)
+void train_neural_network(NeuralNetwork *nn, double learning_rate, int nb_epoch, int nb_inputs, double **inputs, double **expected_output)
 {
 
+    double ***outputs = (double ***)malloc(nb_inputs * sizeof(double **));
     for (int n = 0; n < nb_epoch; n++)
     {
 
-        if (n % 100 == 0)
-        {
-            printf("Epoch %i\n", n);
-        }
-        double ***outputs = (double ***)malloc(nb_inputs * sizeof(double **));
+        printf("Epoch %i\n", n);
+
         for (int i = 0; i < nb_inputs; i++)
         {
-            outputs[i] = compute_neural_network_output(nn, inputs[i]);
+            outputs[i] = compute_neural_network_last_and_hidden_outputs(nn, inputs[i]);
         }
         backpropagation_update(nn, learning_rate, nb_inputs, inputs, outputs, expected_output);
         for (int i = 0; i < nb_inputs; i++)
         {
+            for (int j = 0; j < nn->nb_layer; j++)
+            {
+                free(outputs[i][j]);
+            }
             free(outputs[i]);
         }
-        free(outputs);
     }
+    free(outputs);
 }
