@@ -33,16 +33,16 @@ int write_image(char const *filename, int width, int height, const void *data)
 
 int main(int argc, char **argv)
 {
+
 	const char *program = args_shift(&argc, &argv);
 
 	if (argc < 2)
 	{
-		fprintf(stderr, "Usage: %s <image1> <image2>\n", program);
-		fprintf(stderr, "ERROR: no image1 or/and image2 are not provided\n");
+		fprintf(stderr, "Usage: %s <image>\n", program);
+		fprintf(stderr, "ERROR: image is not provided\n");
 		return 1;
 	}
 	const char *img1_file_path = args_shift(&argc, &argv);
-	const char *img2_file_path = args_shift(&argc, &argv);
 
 	int width, height, channels;
 	unsigned char *data = stbi_load(img1_file_path, &width, &height, &channels, 3);
@@ -58,17 +58,27 @@ int main(int argc, char **argv)
 	int layer_size[3] = {8, 8, 3};
 	NeuralNetwork *nn = generate_random_neural_network(3, layer_size, 2);
 
-	ImageTrainingData img_data = prepare_training_data_from_image(data, width, height, channels);
-
-	train_neural_network(nn, 0.001, 5, img_data.nb_data_points, img_data.inputs, img_data.expected_outputs);
-
 	unsigned char *out = create_image_from_neural_network(nn, width, height);
 
-	int write_result = write_image(img2_file_path, width, height, out);
+	int write_result = write_image("target/out-1.png", width, height, out);
 
 	if (!write_result)
 	{
-		fprintf(stderr, "ERROR: Could not write image %s\n", img2_file_path);
+		fprintf(stderr, "ERROR: Could not write image\n");
+		return 1;
+	}
+
+	ImageTrainingData img_data = prepare_training_data_from_image(data, width, height, channels);
+
+	train_neural_network(nn, 0.001, 10000, img_data.nb_data_points, img_data.inputs, img_data.expected_outputs);
+
+	out = create_image_from_neural_network(nn, width, height);
+
+	write_result = write_image("target/out-2.png", width, height, out);
+
+	if (!write_result)
+	{
+		fprintf(stderr, "ERROR: Could not write image\n");
 		return 1;
 	}
 

@@ -1,14 +1,10 @@
 LIBS = libs/** -lm
-CFLAGS = -Wall -O1
+CFLAGS = -Wall -O3
 CC = gcc
 
 EXE = target/main
 
 INPUT_FILE = pokeball.png
-OUTPUT_FILE = target/pokeball-2.png
-
-# INPUT_FILE = ben-pxl.jpg
-# OUTPUT_FILE = target/ben-pxl-2.png
 
 SRC_FILES = main.c \
 	pixel.c \
@@ -30,6 +26,6 @@ clean:
 	rm -r target
 
 run: build
-	./$(EXE) $(INPUT_FILE) $(OUTPUT_FILE)
+	./$(EXE) $(INPUT_FILE)
 
 all: clean build run

@@ -146,7 +146,10 @@ void train_neural_network(const NeuralNetwork *nn, double learning_rate, int nb_
     for (int n = 0; n < nb_epoch; n++)
     {
 
-        printf("Epoch %i", n);
+        if (n % 100 == 0)
+        {
+            printf("Epoch %i\n", n);
+        }
         double ***outputs = (double ***)malloc(nb_inputs * sizeof(double **));
         for (int i = 0; i < nb_inputs; i++)
         {
