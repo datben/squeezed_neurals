@@ -43,7 +43,7 @@ vector<double> Layer::train(vector<double> inputs, vector<double> outputs, vecto
 
         for (size_t j = 0; j < partial_backward_errors.size(); j++)
         {
-            backward_errors[j] += partial_backward_errors[j] * derivative_value; // add * derivative of the activation function
+            backward_errors[j] += partial_backward_errors[j] * derivative_value;
         }
     }
 
