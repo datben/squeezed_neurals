@@ -49,11 +49,11 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	NeuralNetwork *nn = new NeuralNetwork(2, {10, 10, 3});
+	NeuralNetwork nn(2, {10, 10, 3});
 
 	ImageTrainingData train = prepare_training_data_from_image(data, width, height, channels);
 
-	nn->train(train.inputs, train.expected_outputs, 0.1);
+	nn.train(train.inputs, train.expected_outputs, 0.1, 1);
 
 	// out = create_image_from_neural_network(nn, width, height);
 

@@ -1,4 +1,5 @@
 #include <vector>
+#include "activation_function.h"
 
 using namespace std;
 
@@ -15,8 +16,10 @@ private:
 public:
     Neuron(int nb_weights);
     ~Neuron();
+    ActivationFunction *activation_function;
 
     double feed_forward(vector<double> inputs);
+    double merge_input(vector<double> inputs);
 
     double compute_error(vector<double> backwards_errors, double current_output);
 

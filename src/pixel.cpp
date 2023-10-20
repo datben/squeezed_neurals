@@ -15,8 +15,8 @@ Pixel get_pixel(unsigned char *img, int width, int x, int y, int channels)
 ImageTrainingData prepare_training_data_from_image(unsigned char *image, int width, int height, int channels)
 {
     ImageTrainingData d;
-    d.inputs.reserve(height * width);
-    d.expected_outputs.reserve(height * width);
+    d.inputs = vector<vector<double>>(height * width);
+    d.expected_outputs = vector<vector<double>>(height * width);
     d.nb_data_points = height * width;
     for (int y = 0; y < height; y++)
     {

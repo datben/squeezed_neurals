@@ -3,18 +3,18 @@
 
 using namespace std;
 
-#ifndef NEURAL_NETWORK
-#define NEURAL_NETWORK
+#ifndef NEURAL_NETWORK_H
+#define NEURAL_NETWORK_H
 
 class NeuralNetwork
 {
 private:
     /* data */
-    int input_size;
+    size_t input_size;
     vector<Layer *> layers;
 
 public:
-    NeuralNetwork(int input_size, vector<int> layers_sizes);
+    NeuralNetwork(size_t input_size, vector<int> layers_sizes);
     ~NeuralNetwork();
 
     NeuralNetwork *add_layer(int size);
@@ -23,7 +23,7 @@ public:
     vector<vector<double>> feed_forward_layers(vector<double> inputs);
 
     void train_once(vector<double> inputs, vector<double> expected_outputs, double learning_rate);
-    void train(vector<vector<double>> inputs, vector<vector<double>> expected_outputs, double learning_rate);
+    void train(vector<vector<double>> inputs, vector<vector<double>> expected_outputs, double learning_rate, unsigned int repeat);
 
     int depth();
 };

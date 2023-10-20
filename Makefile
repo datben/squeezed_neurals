@@ -10,7 +10,9 @@ SRC_FILES = main.cpp \
 	pixel.cpp \
 	neuron.cpp \
 	layer.cpp \
-
+	neural_network.cpp \
+	activation_function.cpp \
+	
 COMPILED_FILES = $(foreach item,$(SRC_FILES:.cpp=.o) ,target/build/src/$(item))
 
 target/build/%.o: %.cpp
