@@ -1,26 +1,26 @@
 LIBS = libs/** -lm
 CFLAGS = -Wall -O1
-CC = gcc
+CC = g++
 
 EXE = target/main
 
 INPUT_FILE = pokeball.png
 
-SRC_FILES = main.c \
-	pixel.c \
-	neuron.c \
-	math_utils.c \
-	layer.c \
-	neural_network.c
+SRC_FILES = main.cpp \
+	pixel.cpp \
+	neuron.cpp \
+	layer.cpp \
+	neural_network.cpp \
+	activation_function.cpp \
+	
+COMPILED_FILES = $(foreach item,$(SRC_FILES:.cpp=.o) ,target/build/src/$(item))
 
-COMPILED_FILES = $(foreach item,$(SRC_FILES:.c=.o) ,target/build/src/$(item))
-
-target/build/%.o: %.c
+target/build/%.o: %.cpp
 	@mkdir -p $(@D)
 	$(CC) $(CFLAGS) -o $@ -c $<
 
 build: $(COMPILED_FILES)
-	gcc $^ -o $(EXE) $(LIBS)
+	$(CC) $^ -o $(EXE) $(LIBS)
 
 clean:
 	rm -r target

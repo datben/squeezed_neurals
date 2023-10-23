@@ -1,8 +1,6 @@
-#include <assert.h>
+
+#include <vector>
 #include <stdio.h>
-#include <float.h>
-#include <errno.h>
-#include <string.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "../libs/stb_image.h"
@@ -10,12 +8,10 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "../libs/stb_image_write.h"
 
-#define PIXEL_CHANNELS 3
-
-#include "../include/pixel.h"
-#include "../include/neuron.h"
 #include "../include/neural_network.h"
-#include "../include/math_utils.h"
+#include "../include/pixel.h"
+
+#define PIXEL_CHANNELS 3
 
 char *args_shift(int *argc, char ***argv)
 {
@@ -53,37 +49,21 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	init_rand();
+	NeuralNetwork nn(2, {30, 10, 3});
 
-	int layer_size[3] = {8, 8, 3};
-	NeuralNetwork *nn = generate_random_neural_network(3, layer_size, 2);
+	ImageTrainingData train = prepare_training_data_from_image(data, width, height, channels);
 
-	unsigned char *out = create_image_from_neural_network(nn, width, height);
+	nn.train(train.inputs, train.expected_outputs, 0.1, 1000);
 
-	int write_result = write_image("target/out-1.png", width, height, out);
+	unsigned char *out = create_image_from_neural_network(&nn, width, height).data();
+
+	int write_result = write_image((char *)"target/out-2.png", width, height, out);
 
 	if (!write_result)
 	{
 		fprintf(stderr, "ERROR: Could not write image\n");
 		return 1;
 	}
-
-	ImageTrainingData img_data = prepare_training_data_from_image(data, width, height, channels);
-
-	train_neural_network(nn, 0.001, 10000, img_data.nb_data_points, img_data.inputs, img_data.expected_outputs);
-
-	// out = create_image_from_neural_network(nn, width, height);
-
-	// write_result = write_image("target/out-2.png", width, height, out);
-
-	// if (!write_result)
-	// {
-	// 	fprintf(stderr, "ERROR: Could not write image\n");
-	// 	return 1;
-	// }
-
-	stbi_image_free(data);
-	stbi_image_free(out);
 
 	return 0;
 }

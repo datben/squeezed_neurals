@@ -1,19 +1,27 @@
-#include "./neuron.h"
+#include <vector>
+#include "neuron.h"
+
+using namespace std;
 
 #ifndef LAYER
 #define LAYER
 
-typedef struct
+class Layer
 {
-    int size;
-    Neuron **nodes;
+private:
+    /* data */
+    vector<Neuron *> neurons;
 
-} Layer;
+public:
+    Layer(int input_size, int nb_neurons);
 
-Layer *generate_random_layer(int *node_sizes, int size);
+    ~Layer();
 
-double *compute_layer_output(Layer *layer, double *inputs);
+    vector<double> feed_forward(vector<double> inputs);
 
-int layer_weights_number(Layer *layer);
+    vector<double> train(vector<double> inputs, vector<double> outputs, vector<double> errors, double learning_rate);
+
+    int get_nb_neurons();
+};
 
 #endif

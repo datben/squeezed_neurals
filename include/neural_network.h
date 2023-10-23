@@ -1,30 +1,31 @@
-#include "./layer.h"
+#include <vector>
+#include "layer.h"
 
-#ifndef NEURAL_NETWORK
-#define NEURAL_NETWORK
+using namespace std;
 
-typedef struct
+#ifndef NEURAL_NETWORK_H
+#define NEURAL_NETWORK_H
+
+class NeuralNetwork
 {
-    int nb_layer;
-    int input_size;
-    int output_size;
-    int *layer_sizes;
-    Layer **layers;
+private:
+    /* data */
+    size_t input_size;
+    vector<Layer *> layers;
 
-} NeuralNetwork;
+public:
+    NeuralNetwork(size_t input_size, vector<int> layers_sizes);
+    ~NeuralNetwork();
 
-NeuralNetwork *generate_random_neural_network(int nb_layer, int *layer_sizes, int input_size);
+    NeuralNetwork *add_layer(int size);
 
-double **compute_neural_network_last_and_hidden_outputs(NeuralNetwork *nn, double *inputs);
+    vector<double> feed_forward_final_layer(vector<double> inputs);
+    vector<vector<double>> feed_forward_layers(vector<double> inputs);
 
-double *compute_neural_network_last_output(NeuralNetwork *nn, double *inputs);
+    double train_once(vector<double> inputs, vector<double> expected_outputs, double learning_rate);
+    double train(vector<vector<double>> inputs, vector<vector<double>> expected_outputs, double learning_rate, unsigned int repeat);
 
-double ***compute_neural_network_partial_derivate_error_n(NeuralNetwork *nn, double *inputs, double **nn_outputs, double *expected_output);
-
-void backpropagation_update(NeuralNetwork *nn, double learning_rate, int nb_inputs, double **inputs, double ***nn_outputs, double **expected_output);
-
-int neural_network_weights_number(NeuralNetwork *nn);
-
-void train_neural_network(NeuralNetwork *nn, double learning_rate, int nb_epoch, int nb_inputs, double **inputs, double **expected_output);
+    int depth();
+};
 
 #endif
