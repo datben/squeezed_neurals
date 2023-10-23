@@ -18,8 +18,14 @@ typedef struct
     int nb_data_points;
 } ImageTrainingData;
 
-ImageTrainingData prepare_training_data_from_image(unsigned char *image, int width, int height, int channels);
+ImageTrainingData prepare_training_data_from_color_image(unsigned char *image, int width, int height, int channels);
 
-vector<unsigned char> create_image_from_neural_network(NeuralNetwork *nn, int width, int height);
+vector<unsigned char> to_gray_scala(unsigned char *image, int width, int height, int channels);
+
+vector<unsigned char> create_color_image_from_neural_network(NeuralNetwork *nn, int width, int height);
+
+ImageTrainingData prepare_training_data_from_gray_image(unsigned char *image, int width, int height, int channels);
+
+vector<unsigned char> create_gray_image_from_neural_network(NeuralNetwork *nn, int width, int height);
 
 #endif

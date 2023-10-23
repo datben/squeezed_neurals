@@ -6,6 +6,7 @@ class ActivationFunction
 public:
     enum Value : char
     {
+        IDENTITY,
         SIGMOID,
         ReLU,
     };

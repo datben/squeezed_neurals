@@ -52,6 +52,5 @@ vector<double> Neuron::feed_backward(vector<double> input, double output, double
         backward_errors[i] = weights[i] * error;
         weights[i] -= learning_rate * error * input[i];
     }
-
     return backward_errors;
 }

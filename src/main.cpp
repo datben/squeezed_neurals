@@ -11,8 +11,6 @@
 #include "../include/neural_network.h"
 #include "../include/pixel.h"
 
-#define PIXEL_CHANNELS 3
-
 char *args_shift(int *argc, char ***argv)
 {
 	assert(*argc > 0);
@@ -22,9 +20,9 @@ char *args_shift(int *argc, char ***argv)
 	return result;
 }
 
-int write_image(char *filename, int width, int height, void *data)
+int write_image(char *filename, int width, int height, void *data, int channels)
 {
-	return stbi_write_png(filename, width, height, PIXEL_CHANNELS, data, width * PIXEL_CHANNELS);
+	return stbi_write_png(filename, width, height, channels, data, width * channels);
 }
 
 int main(int argc, char **argv)
@@ -43,21 +41,27 @@ int main(int argc, char **argv)
 	int width, height, channels;
 	unsigned char *data = stbi_load(img1_file_path, &width, &height, &channels, 3);
 
-	if (data == NULL || channels < PIXEL_CHANNELS)
-	{
-		fprintf(stderr, "ERROR: image1 unsupported format\n");
-		return 1;
-	}
+	data = to_gray_scala(data, width, height, channels).data();
 
-	NeuralNetwork nn(2, {30, 10, 3});
+	// if (data == NULL)
+	// {
+	// 	fprintf(stderr, "ERROR: image1 unsupported format\n");
+	// 	return 1;
+	// }
 
-	ImageTrainingData train = prepare_training_data_from_image(data, width, height, channels);
+	// printf("channel: %d\n", channels);
+	// printf("width: %d\n", width);
+	// printf("height: %d\n", height);
 
-	nn.train(train.inputs, train.expected_outputs, 0.1, 1000);
+	// NeuralNetwork nn(2, {30, 10, 1});
 
-	unsigned char *out = create_image_from_neural_network(&nn, width, height).data();
+	// ImageTrainingData train = prepare_training_data_from_color_image(data, width, height, channels);
 
-	int write_result = write_image((char *)"target/out-2.png", width, height, out);
+	// nn.train(train.inputs, train.expected_outputs, 1E-6, 3000);
+
+	// unsigned char *out = create_color_image_from_neural_network(&nn, width, height).data();
+
+	int write_result = write_image((char *)"target/out-2.png", width, height, data, 1);
 
 	if (!write_result)
 	{
