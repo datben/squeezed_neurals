@@ -22,8 +22,8 @@ public:
     vector<double> feed_forward_final_layer(vector<double> inputs);
     vector<vector<double>> feed_forward_layers(vector<double> inputs);
 
-    void train_once(vector<double> inputs, vector<double> expected_outputs, double learning_rate);
-    void train(vector<vector<double>> inputs, vector<vector<double>> expected_outputs, double learning_rate, unsigned int repeat);
+    double train_once(vector<double> inputs, vector<double> expected_outputs, double learning_rate);
+    double train(vector<vector<double>> inputs, vector<vector<double>> expected_outputs, double learning_rate, unsigned int repeat);
 
     int depth();
 };

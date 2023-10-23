@@ -49,24 +49,21 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	NeuralNetwork nn(2, {10, 10, 3});
+	NeuralNetwork nn(2, {30, 10, 3});
 
 	ImageTrainingData train = prepare_training_data_from_image(data, width, height, channels);
 
-	nn.train(train.inputs, train.expected_outputs, 0.1, 1);
+	nn.train(train.inputs, train.expected_outputs, 0.1, 1000);
 
-	// out = create_image_from_neural_network(nn, width, height);
+	unsigned char *out = create_image_from_neural_network(&nn, width, height).data();
 
-	// write_result = write_image("target/out-2.png", width, height, out);
+	int write_result = write_image((char *)"target/out-2.png", width, height, out);
 
-	// if (!write_result)
-	// {
-	// 	fprintf(stderr, "ERROR: Could not write image\n");
-	// 	return 1;
-	// }
-
-	// stbi_image_free(data);
-	// stbi_image_free(out);
+	if (!write_result)
+	{
+		fprintf(stderr, "ERROR: Could not write image\n");
+		return 1;
+	}
 
 	return 0;
 }

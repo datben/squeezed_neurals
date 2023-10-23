@@ -61,7 +61,17 @@ int NeuralNetwork::depth()
     return this->layers.size();
 }
 
-void NeuralNetwork::train_once(vector<double> inputs, vector<double> expected_outputs, double learning_rate)
+double norm_vec(vector<double> vec)
+{
+    double sum = 0;
+    for (size_t i = 0; i < vec.size(); i++)
+    {
+        sum += vec[i] * vec[i];
+    }
+    return sqrt(sum);
+}
+
+double NeuralNetwork::train_once(vector<double> inputs, vector<double> expected_outputs, double learning_rate)
 {
     if (inputs.size() != this->input_size)
         throw invalid_argument("The number of inputs must be equal to the number of neurons in the input layer");
@@ -73,6 +83,8 @@ void NeuralNetwork::train_once(vector<double> inputs, vector<double> expected_ou
         errors[i] = expected_outputs[i] - outputs[depth() - 1][i];
     }
 
+    double err = norm_vec(errors) / 2;
+
     for (int i = this->layers.size() - 1; i >= 0; i--)
     {
         vector<double> layer_inputs;
@@ -83,22 +95,34 @@ void NeuralNetwork::train_once(vector<double> inputs, vector<double> expected_ou
 
         errors = this->layers[i]->train(layer_inputs, outputs[i], errors, learning_rate);
     }
+
+    return err;
 }
 
-void NeuralNetwork::train(vector<vector<double>> inputs, vector<vector<double>> expected_outputs, double learning_rate, unsigned int repeat)
+double NeuralNetwork::train(vector<vector<double>> inputs, vector<vector<double>> expected_outputs, double learning_rate, unsigned int repeat)
 {
     if (inputs.size() != expected_outputs.size())
         throw invalid_argument("The number of inputs must be equal to the number of expected outputs");
 
-    while (repeat)
+    int n = 0;
+    while (n < repeat)
     {
 
-        printf("Epoch : %i\n", repeat);
-
+        double err_n = 0;
         for (size_t i = 0; i < inputs.size(); i++)
         {
-            train_once(inputs[i], expected_outputs[i], learning_rate);
+            double err = train_once(inputs[i], expected_outputs[i], learning_rate);
+            err_n += err;
         }
-        repeat--;
+
+        if (n % 100 == 0)
+        {
+            printf("Epoch : %i\n", n);
+            printf("Error : %f\n", err_n / inputs.size());
+        }
+
+        n++;
     }
+
+    return 0;
 }
